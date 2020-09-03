@@ -2,5 +2,5 @@
 	"usb_device": "046d:c08b",
   	"monitor_input_when_plugged_in": "DisplayPort1",
   	"monitor_input_when_unplugged": "UsbC",
-  	"which_monitors_to_switch": [ 1 ]
+  	"which_monitors_to_switch": [ 0, 1 ]
 }
