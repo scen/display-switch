@@ -4,6 +4,7 @@
 //
 
 use std::thread::sleep;
+use std::collections::HashSet;
 
 use anyhow::Result;
 use ddc::Ddc;
@@ -18,9 +19,8 @@ const INPUT_SELECT: u8 = 0x60;
 #[derive(Clone, Copy, Debug, Deserialize)]
 pub enum InputSource {
     DisplayPort1 = 0x0f,
-    DisplayPort2 = 0x10,
-    Hdmi1 = 0x11,
-    Hdmi2 = 0x12,
+    Hdmi1 = 0x17,
+    UsbC = 0x1b,
 }
 
 pub fn log_current_source() -> Result<()> {
@@ -31,10 +31,14 @@ pub fn log_current_source() -> Result<()> {
     Ok(())
 }
 
-pub fn switch_to(source: InputSource) -> Result<()> {
-    for mut ddc in Monitor::enumerate()? {
-        info!("Setting monitor '{:?}' to {:?}", ddc, source);
-        ddc.set_vcp_feature(INPUT_SELECT, source as u16)?;
+pub fn switch_to(source: InputSource, which_monitors_to_switch: &HashSet<usize>) -> Result<()> {
+    for (index, ddc) in Monitor::enumerate()?.iter_mut().enumerate() {
+        if which_monitors_to_switch.contains(&index) {
+            info!("Setting monitor '{:?}' to {:?}", ddc, source);
+            ddc.set_vcp_feature(INPUT_SELECT, source as u16)?;
+        } else {
+            info!("skipping monitor '{:?}' index={}", ddc, index);
+        }
     }
     Ok(())
 }
